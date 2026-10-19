@@ -278,7 +278,7 @@
 // ==========================================
 (function () {
     const PARTICLE_COUNT = 80;
-    const LOVE_TEXTS = ['I love you', 'i love u', 'love', 'ily', '♡', 'luv u', 'sayang', 'cinta'];
+    const LOVE_TEXTS = ['nia', 'i love u', 'oktaviani', 'ily', '♡', 'luv u', 'cantik', 'nia'];
 
     // Parametric heart shape formula
     function heartX(t) {
@@ -450,7 +450,7 @@
         const pinPopupClose = document.getElementById('pin-popup-close');
 
         // DEFAULT PIN: Silakan ubah angka ini jika ingin PIN lain
-        const SECRET_PIN = "1718";
+        const SECRET_PIN = "1320";
 
         let pinAttempt = 0;
         let popupTimeout = null;
@@ -461,7 +461,7 @@
                 // Percobaan pertama: tampilkan foto kucing
                 showCat: true,
                 emoji: '',
-                message: 'Masa tanggal spesial kita lupa?',
+                message: 'Masa udah lupa tanggal lahir aku?',
                 buttonText: 'Iya iya maaf 😭'
             },
             {
@@ -562,12 +562,11 @@
                         if (pinInput.value === SECRET_PIN) {
                             // PIN BENAR
                             showPinPopup({
-                                message: 'Valid!\nLanjut ya sayang~',
+                                message: 'Valid!\nLanjut yaa~',
                                 buttonText: 'Lanjut 💕'
                             }, true);
 
-                            // Auto-close dan lanjut setelah 2 detik
-                            popupTimeout = setTimeout(() => {
+                            const proceedAfterPin = () => {
                                 closePinPopup();
                                 setTimeout(() => {
                                     const pinScreen = document.getElementById('pin-screen');
@@ -575,26 +574,21 @@
 
                                     setTimeout(() => {
                                         pinScreen.style.display = 'none';
-                                        const landingPage = document.getElementById('landing-page');
-                                        if (landingPage) landingPage.style.display = '';
-                                    }, 1000);
-                                }, 300);
-                            }, 2000);
-
-                            // Juga lanjut saat tombol diklik
-                            pinPopupClose.onclick = function () {
-                                closePinPopup();
-                                setTimeout(() => {
-                                    const pinScreen = document.getElementById('pin-screen');
-                                    pinScreen.classList.remove('active');
-
-                                    setTimeout(() => {
-                                        pinScreen.style.display = 'none';
-                                        const landingPage = document.getElementById('landing-page');
-                                        if (landingPage) landingPage.style.display = '';
+                                        if (typeof window.startMiniGame === 'function') {
+                                            window.startMiniGame();
+                                        } else {
+                                            const landingPage = document.getElementById('landing-page');
+                                            if (landingPage) landingPage.style.display = '';
+                                        }
                                     }, 1000);
                                 }, 300);
                             };
+
+                            // Auto-close dan lanjut setelah 2 detik
+                            popupTimeout = setTimeout(proceedAfterPin, 2000);
+
+                            // Juga lanjut saat tombol diklik
+                            pinPopupClose.onclick = proceedAfterPin;
                         } else {
                             // PIN SALAH
                             const configIndex = Math.min(pinAttempt, wrongConfigs.length - 1);
@@ -705,7 +699,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 // B. JIKA YANG DIKLIK ADALAH KARTU 3D BIASA (Bukan Lagu)
                 else if (this.classList.contains('planet-card')) {
                     modalImg.src = this.querySelector('img').src;
-                    modalImg.style.aspectRatio = "3 / 4";
+                    modalImg.style.aspectRatio = "1 / 1";
+                    modalImg.style.objectFit = "cover";
 
                     const customCaption = this.getAttribute('data-caption');
                     const teksCaption = customCaption ? customCaption : this.querySelector('.planet-caption').innerText;
@@ -714,12 +709,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 // C. JIKA YANG DIKLIK ADALAH POLAROID
                 else if (this.classList.contains('polaroid')) {
                     modalImg.src = this.querySelector('img').src;
-                    modalImg.style.aspectRatio = "3 / 4";
+                    modalImg.style.aspectRatio = "1 / 1";
+                    modalImg.style.objectFit = "cover";
+
+                    const caption = this.querySelector('.caption');
+                    if (modalCaption && caption) modalCaption.innerText = caption.innerText;
                 }
                 // D. JIKA YANG DIKLIK ADALAH GALERI CINTA
                 else {
                     modalImg.src = this.src;
-                    modalImg.style.aspectRatio = "9 / 16";
+                    modalImg.style.aspectRatio = "1 / 1";
+                    modalImg.style.objectFit = "cover";
                 }
 
                 modal.classList.add('show-modal');
@@ -1018,6 +1018,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const ratio = transparentCount / sampledCount;
         if (ratio > 0.45) {
             clearedSet.add(index);
+
+            // Tambahkan class scratched ke kartu agar efek fade-in aktif
+            const card = canvas.closest('.scratch-card');
+            if (card) {
+                card.classList.add('scratched');
+            }
+
             // Fade out sisa canvas
             canvas.style.transition = 'opacity 0.5s ease';
             canvas.style.opacity = '0';
@@ -1520,3 +1527,606 @@ function buatConfetti() {
     // Gelombang 3: Hujan confetti lanjutan
     setTimeout(() => burstWave(40, 0), 2000);
 }
+
+// ==========================================
+// 8. MINI GAME: TANGKAP 10 BOUQUET
+// ==========================================
+(function () {
+    let canvas, ctx;
+    let animId = null;
+    let isRunning = false;
+    let lastTime = 0;
+
+    let score = 0;
+    const TARGET_SCORE = 10;
+
+    // Audio Context & Sound Synthesizer
+    let gameAudioCtx = null;
+
+    function getGameAudioContext() {
+        if (!gameAudioCtx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) {
+                gameAudioCtx = new AudioCtx();
+            }
+        }
+        if (gameAudioCtx && gameAudioCtx.state === 'suspended') {
+            gameAudioCtx.resume();
+        }
+        return gameAudioCtx;
+    }
+
+    function playCatchSound(currentScore) {
+        try {
+            const ctxA = getGameAudioContext();
+            if (!ctxA) return;
+            const now = ctxA.currentTime;
+
+            // Skala nada pentatonik naik semakin tinggi bouquet terkumpul
+            const scale = [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50, 1174.66, 1318.51];
+            const freq = scale[Math.min(currentScore - 1, scale.length - 1)] || 659.25;
+
+            const osc = ctxA.createOscillator();
+            const gain = ctxA.createGain();
+
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq * 0.7, now);
+            osc.frequency.exponentialRampToValueAtTime(freq, now + 0.035);
+            osc.frequency.exponentialRampToValueAtTime(freq * 1.35, now + 0.1);
+
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(0.24, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+            osc.connect(gain);
+            gain.connect(ctxA.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.22);
+        } catch (e) { }
+    }
+
+    function playBombSound() {
+        try {
+            const ctxA = getGameAudioContext();
+            if (!ctxA) return;
+            const now = ctxA.currentTime;
+
+            // 1. Dentuman lucu "POOF"
+            const osc = ctxA.createOscillator();
+            const gain = ctxA.createGain();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(140, now);
+            osc.frequency.exponentialRampToValueAtTime(32, now + 0.25);
+
+            gain.gain.setValueAtTime(0.28, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+            osc.connect(gain);
+            gain.connect(ctxA.destination);
+
+            osc.start(now);
+            osc.stop(now + 0.3);
+
+            // 2. Efek kartun lucu "womp womp" turun
+            const slideOsc = ctxA.createOscillator();
+            const slideGain = ctxA.createGain();
+
+            slideOsc.type = 'sine';
+            slideOsc.frequency.setValueAtTime(340, now + 0.05);
+            slideOsc.frequency.exponentialRampToValueAtTime(80, now + 0.45);
+
+            slideGain.gain.setValueAtTime(0.001, now);
+            slideGain.gain.linearRampToValueAtTime(0.18, now + 0.08);
+            slideGain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+
+            slideOsc.connect(slideGain);
+            slideGain.connect(ctxA.destination);
+
+            slideOsc.start(now + 0.05);
+            slideOsc.stop(now + 0.5);
+        } catch (e) { }
+    }
+
+    function playWinSound() {
+        try {
+            const ctxA = getGameAudioContext();
+            if (!ctxA) return;
+            const now = ctxA.currentTime;
+
+            // Arpeggio ceria kemenangan: Do - Mi - Sol - Do - Mi
+            const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
+            notes.forEach((freq, idx) => {
+                const time = now + idx * 0.1;
+                const osc = ctxA.createOscillator();
+                const gain = ctxA.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, time);
+
+                gain.gain.setValueAtTime(0.001, time);
+                gain.gain.linearRampToValueAtTime(0.22, time + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.38);
+
+                osc.connect(gain);
+                gain.connect(ctxA.destination);
+
+                osc.start(time);
+                osc.stop(time + 0.4);
+            });
+        } catch (e) { }
+    }
+
+    // Gambar preloaded
+    const imgCat = new Image();
+    imgCat.src = 'img/game-cat.png';
+
+    const imgBouquet = new Image();
+    imgBouquet.src = 'img/game-bouquet.png';
+
+    // Karakter Kucing
+    const cat = {
+        x: 0,
+        y: 0,
+        width: 90,
+        height: 90,
+        targetX: 0,
+        tilt: 0,
+        scaleX: 1,
+        scaleY: 1
+    };
+
+    let items = []; // Bouquet & bom yang sedang jatuh
+    let particles = []; // Partikel ledakan
+    let confetti = []; // Hujan confetti kemenangan
+    let lastSpawnTime = 0;
+    let spawnInterval = 820; // ms per kemunculan
+
+    let feedbackOverlay = null;
+
+    function resizeCanvas() {
+        if (!canvas) return;
+        const rect = canvas.parentElement.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+
+        // Skala kucing responsif dan proporsional terhadap layar HP/desktop
+        cat.width = Math.min(105, Math.max(76, canvas.width * 0.23));
+        cat.height = cat.width;
+        cat.y = canvas.height - cat.height - 12;
+
+        if (cat.targetX === 0) {
+            cat.targetX = (canvas.width - cat.width) / 2;
+            cat.x = cat.targetX;
+        }
+    }
+
+    function showFeedback(text, type, x, y) {
+        if (!feedbackOverlay) return;
+        const el = document.createElement('div');
+        el.className = `game-floating-msg ${type}`;
+        el.textContent = text;
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        feedbackOverlay.appendChild(el);
+        setTimeout(() => el.remove(), 920);
+    }
+
+    function triggerScreenShake() {
+        const wrapper = document.getElementById('game-canvas-wrapper');
+        if (!wrapper) return;
+        wrapper.classList.remove('shake-active');
+        void wrapper.offsetWidth; // Force reflow
+        wrapper.classList.add('shake-active');
+        setTimeout(() => wrapper.classList.remove('shake-active'), 450);
+    }
+
+    function createPetalExplosion(x, y) {
+        for (let i = 0; i < 14; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 70 + Math.random() * 130;
+            particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 45,
+                color: Math.random() > 0.5 ? '#ffb6c1' : '#ff7eb3',
+                size: 4 + Math.random() * 5,
+                alpha: 1,
+                life: 0.65 + Math.random() * 0.3
+            });
+        }
+    }
+
+    function createBombExplosion(x, y) {
+        for (let i = 0; i < 24; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = 90 + Math.random() * 180;
+            const colors = ['#ff4757', '#ffa502', '#ff6b81', '#ffffff', '#2f3542'];
+            particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - 60,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: 5 + Math.random() * 6,
+                alpha: 1,
+                life: 0.75 + Math.random() * 0.35
+            });
+        }
+    }
+
+    function createConfetti() {
+        confetti = [];
+        const colors = ['#ff7eb3', '#ffb6c1', '#ffd166', '#06d6a0', '#118ab2', '#ffffff'];
+        for (let i = 0; i < 75; i++) {
+            confetti.push({
+                x: Math.random() * canvas.width,
+                y: -20 - Math.random() * 160,
+                vx: (Math.random() - 0.5) * 80,
+                vy: 110 + Math.random() * 140,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                size: 6 + Math.random() * 6,
+                rotation: Math.random() * Math.PI * 2,
+                rotSpeed: (Math.random() - 0.5) * 8
+            });
+        }
+    }
+
+    function handlePointer(clientX) {
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        const posX = clientX - rect.left - (cat.width / 2);
+        cat.targetX = Math.max(5, Math.min(canvas.width - cat.width - 5, posX));
+    }
+
+    const onTouchMove = (e) => {
+        if (e.touches && e.touches[0]) {
+            handlePointer(e.touches[0].clientX);
+        }
+    };
+
+    const onMouseMove = (e) => {
+        handlePointer(e.clientX);
+    };
+
+    const onKeyDown = (e) => {
+        if (!isRunning) return;
+        const speed = 35;
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+            cat.targetX = Math.max(5, cat.targetX - speed);
+        } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+            cat.targetX = Math.min(canvas.width - cat.width - 5, cat.targetX + speed);
+        }
+    };
+
+    function updateHUD() {
+        const scoreDisplay = document.getElementById('game-score-display');
+        const progressBar = document.getElementById('game-progress-bar');
+        if (scoreDisplay) {
+            scoreDisplay.textContent = score;
+            scoreDisplay.classList.add('bump');
+            setTimeout(() => scoreDisplay.classList.remove('bump'), 200);
+        }
+        if (progressBar) {
+            const pct = Math.min(100, (score / TARGET_SCORE) * 100);
+            progressBar.style.width = `${pct}%`;
+        }
+    }
+
+    function spawnItem(timestamp) {
+        if (timestamp - lastSpawnTime < spawnInterval) return;
+        lastSpawnTime = timestamp;
+
+        // 72% bouquet, 28% bom
+        const isBomb = Math.random() < 0.28;
+        const size = isBomb ? Math.min(46, canvas.width * 0.115) : Math.min(52, canvas.width * 0.135);
+
+        items.push({
+            type: isBomb ? 'bomb' : 'bouquet',
+            x: 15 + Math.random() * (canvas.width - size - 30),
+            y: -size - 10,
+            width: size,
+            height: size,
+            speed: (isBomb ? 195 : 175) + Math.random() * 65,
+            wobblePhase: Math.random() * Math.PI * 2,
+            wobbleSpeed: 2 + Math.random() * 2
+        });
+    }
+
+    function drawBomb(x, y, size) {
+        const r = size / 2;
+        const cx = x + r;
+        const cy = y + r;
+
+        // Badan bom hitam metalik mengkilap
+        const grad = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, r * 0.1, cx, cy, r);
+        grad.addColorStop(0, '#57606f');
+        grad.addColorStop(0.3, '#2f3542');
+        grad.addColorStop(1, '#1e272e');
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r * 0.85, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Kilau putih di atas bola bom
+        ctx.beginPath();
+        ctx.arc(cx - r * 0.35, cy - r * 0.35, r * 0.22, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.fill();
+
+        // Leher bom di atas
+        ctx.fillStyle = '#747d8c';
+        ctx.fillRect(cx - r * 0.2, cy - r * 0.95, r * 0.4, r * 0.2);
+
+        // Tali sumbu bom melengkung
+        ctx.beginPath();
+        ctx.moveTo(cx, cy - r * 0.9);
+        ctx.quadraticCurveTo(cx + r * 0.4, cy - r * 1.3, cx + r * 0.6, cy - r * 1.1);
+        ctx.strokeStyle = '#d2dae2';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        // Percikan api sumbu berkedip
+        ctx.beginPath();
+        ctx.arc(cx + r * 0.6, cy - r * 1.1, 3.5 + Math.random() * 2, 0, Math.PI * 2);
+        ctx.fillStyle = Math.random() > 0.5 ? '#ffa502' : '#ff4757';
+        ctx.fill();
+    }
+
+    function gameLoop(timestamp) {
+        if (!isRunning) return;
+
+        if (!lastTime) lastTime = timestamp;
+        const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
+        lastTime = timestamp;
+
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Spawning item baru jika belum menang
+        if (score < TARGET_SCORE) {
+            spawnItem(timestamp);
+        }
+
+        // Lerp posisi dan tilt kucing
+        const dx = cat.targetX - cat.x;
+        cat.x += dx * 0.28;
+        cat.tilt = Math.max(-0.1, Math.min(0.1, dx * 0.003));
+        cat.scaleX += (1 - cat.scaleX) * 0.18;
+        cat.scaleY += (1 - cat.scaleY) * 0.18;
+
+        // Area tangkapan kucing (di bagian atas cakar/sweater kucing)
+        const catchBox = {
+            x: cat.x + cat.width * 0.12,
+            y: cat.y - 8,
+            width: cat.width * 0.76,
+            height: cat.height * 0.5
+        };
+
+        // Update & Render Items
+        for (let i = items.length - 1; i >= 0; i--) {
+            const item = items[i];
+            item.y += item.speed * dt;
+            item.wobblePhase += item.wobbleSpeed * dt;
+            const wobbleX = Math.sin(item.wobblePhase) * 10;
+
+            const itemCenterX = item.x + wobbleX + item.width / 2;
+            const itemCenterY = item.y + item.height / 2;
+
+            // Cek tabrakan dengan kucing
+            const hit = (
+                itemCenterX >= catchBox.x &&
+                itemCenterX <= catchBox.x + catchBox.width &&
+                itemCenterY >= catchBox.y &&
+                itemCenterY <= catchBox.y + catchBox.height
+            );
+
+            if (hit) {
+                if (item.type === 'bouquet') {
+                    // TANGKAP BOUQUET!
+                    score = Math.min(TARGET_SCORE, score + 1);
+                    playCatchSound(score);
+                    createPetalExplosion(itemCenterX, itemCenterY);
+                    showFeedback('+1 🌸', 'positive', itemCenterX, itemCenterY - 10);
+
+                    // Squash & stretch kucing kegirangan
+                    cat.scaleX = 1.18;
+                    cat.scaleY = 0.82;
+
+                    updateHUD();
+
+                    if (score >= TARGET_SCORE) {
+                        onWin();
+                    }
+                } else {
+                    // KENA BOM!
+                    score = 0;
+                    playBombSound();
+                    createBombExplosion(itemCenterX, itemCenterY);
+                    triggerScreenShake();
+                    showFeedback('BOOM! Reset ke 0 💥😭', 'negative', itemCenterX, itemCenterY - 15);
+
+                    // Kucing goyang shock
+                    cat.scaleX = 0.85;
+                    cat.scaleY = 1.25;
+
+                    updateHUD();
+                }
+
+                items.splice(i, 1);
+                continue;
+            }
+
+            // Hapus jika lewat batas bawah
+            if (item.y > canvas.height + 60) {
+                items.splice(i, 1);
+                continue;
+            }
+
+            // Render Item
+            ctx.save();
+            ctx.translate(item.x + wobbleX + item.width / 2, item.y + item.height / 2);
+            if (item.type === 'bouquet') {
+                ctx.rotate(Math.sin(item.wobblePhase) * 0.15);
+                ctx.drawImage(imgBouquet, -item.width / 2, -item.height / 2, item.width, item.height);
+            } else {
+                ctx.rotate(Math.sin(item.wobblePhase) * 0.1);
+                drawBomb(-item.width / 2, -item.height / 2, item.width);
+            }
+            ctx.restore();
+        }
+
+        // Render Kucing
+        ctx.save();
+        ctx.translate(cat.x + cat.width / 2, cat.y + cat.height / 2);
+        ctx.rotate(cat.tilt);
+        ctx.scale(cat.scaleX, cat.scaleY);
+        ctx.drawImage(imgCat, -cat.width / 2, -cat.height / 2, cat.width, cat.height);
+        ctx.restore();
+
+        // Update & Render Partikel
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx * dt;
+            p.y += p.vy * dt;
+            p.vy += 120 * dt;
+            p.life -= dt;
+            p.alpha = Math.max(0, p.life);
+
+            if (p.life <= 0) {
+                particles.splice(i, 1);
+                continue;
+            }
+
+            ctx.save();
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // Update & Render Confetti Kemenangan
+        if (confetti.length > 0) {
+            for (let i = confetti.length - 1; i >= 0; i--) {
+                const c = confetti[i];
+                c.y += c.vy * dt;
+                c.x += c.vx * dt;
+                c.rotation += c.rotSpeed * dt;
+
+                ctx.save();
+                ctx.translate(c.x, c.y);
+                ctx.rotate(c.rotation);
+                ctx.fillStyle = c.color;
+                ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 0.7);
+                ctx.restore();
+
+                if (c.y > canvas.height + 30) {
+                    c.y = -20;
+                    c.x = Math.random() * canvas.width;
+                }
+            }
+        }
+
+        animId = requestAnimationFrame(gameLoop);
+    }
+
+    function onWin() {
+        playWinSound();
+        createConfetti();
+
+        // Tampilkan modal menang setelah delay sejenak
+        setTimeout(() => {
+            const winOverlay = document.getElementById('game-win-overlay');
+            if (winOverlay) {
+                winOverlay.style.display = 'flex';
+            }
+        }, 500);
+    }
+
+    function startMiniGame() {
+        const miniGameScreen = document.getElementById('mini-game-screen');
+        if (!miniGameScreen) return;
+
+        canvas = document.getElementById('game-canvas');
+        if (!canvas) return;
+        ctx = canvas.getContext('2d');
+
+        feedbackOverlay = document.getElementById('game-feedback-overlay');
+
+        // Reset state game
+        score = 0;
+        items = [];
+        particles = [];
+        confetti = [];
+        updateHUD();
+
+        const winOverlay = document.getElementById('game-win-overlay');
+        if (winOverlay) winOverlay.style.display = 'none';
+
+        miniGameScreen.style.display = 'flex';
+        setTimeout(() => miniGameScreen.classList.add('active'), 20);
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Bind Controls (Mobile Touch + Desktop Mouse & Keyboard)
+        canvas.addEventListener('touchmove', onTouchMove, { passive: true });
+        canvas.addEventListener('touchstart', onTouchMove, { passive: true });
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('keydown', onKeyDown);
+
+        isRunning = true;
+        lastTime = 0;
+        lastSpawnTime = 0;
+
+        // Unmute audio context saat game dibuka
+        getGameAudioContext();
+
+        if (animId) cancelAnimationFrame(animId);
+        animId = requestAnimationFrame(gameLoop);
+    }
+
+    function selesaiMiniGame() {
+        isRunning = false;
+        if (animId) {
+            cancelAnimationFrame(animId);
+            animId = null;
+        }
+
+        window.removeEventListener('resize', resizeCanvas);
+        if (canvas) {
+            canvas.removeEventListener('touchmove', onTouchMove);
+            canvas.removeEventListener('touchstart', onTouchMove);
+        }
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('keydown', onKeyDown);
+
+        const miniGameScreen = document.getElementById('mini-game-screen');
+        if (miniGameScreen) {
+            miniGameScreen.classList.remove('active');
+            setTimeout(() => {
+                miniGameScreen.style.display = 'none';
+
+                // Tampilkan halaman landing bouquet cuking
+                const landingPage = document.getElementById('landing-page');
+                if (landingPage) {
+                    landingPage.style.display = '';
+                    landingPage.style.opacity = '0';
+                    setTimeout(() => {
+                        landingPage.style.transition = 'opacity 0.8s ease';
+                        landingPage.style.opacity = '1';
+                    }, 50);
+                }
+            }, 500);
+        }
+    }
+
+    // Export global functions
+    window.startMiniGame = startMiniGame;
+    window.selesaiMiniGame = selesaiMiniGame;
+})();

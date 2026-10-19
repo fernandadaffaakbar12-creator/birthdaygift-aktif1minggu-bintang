@@ -13,7 +13,7 @@
 
 <body>
     <audio id="bg-music" loop>
-        <source src="audio/Sal Priadi - Besok Kita Pergi Makan (Unofficial Lyric Video).mp3" type="audio/mpeg">
+        <source src="audio/Kita Lewati Berdua Overnight Lirik.mp3" type="audio/mpeg">
     </audio>
 
     <div id="music-popup" class="music-popup">
@@ -21,10 +21,10 @@
         <img src="img/5.jpeg" alt="Album Cover" class="album-cover">
         <div class="music-info">
             <div class="song-title-marquee">
-                <span class="song-title-text">Besok Kita Pergi Makan &nbsp;&nbsp;&nbsp;&nbsp;Besok Kita Pergi
-                    Makan&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <span class="song-title-text">Kita Lewati Berdua &nbsp;&nbsp;&nbsp;&nbsp;Kita Lewati
+                    Berdua&nbsp;&nbsp;&nbsp;&nbsp;</span>
             </div>
-            <p class="artist-name">Sal Priadi</p>
+            <p class="artist-name">Overnights</p>
         </div>
         <button id="play-pause-btn" class="play-pause-btn" onclick="toggleMusic()">
             <!-- SVG Pause Icon -->
@@ -58,8 +58,8 @@
     <div id="pin-screen" style="display: none;">
         <div class="pin-container glass-panel">
             <h2>Enter PIN</h2>
-            <p style="margin-bottom: 2px;">passwordnya tanggal lahir kamu + tanggal lahir aku yaa.</p>
-            <p style="margin-top: 0;">(Awas aja kalau lupa tanggal lahir aku)</p>
+            <p style="margin-bottom: 2px;">passwordnya tanggal lahir aku + tanggal kamu yaa.</p>
+            <p style="margin-top: 0;">(semoga sih masih inget hehe)</p>
             <input type="password" id="pin-input" maxlength="4" placeholder="****" inputmode="numeric" pattern="[0-9]*">
         </div>
     </div>
@@ -74,49 +74,98 @@
         </div>
     </div>
 
+    <!-- Mini Game Screen: Tangkap 10 Bouquet -->
+    <div id="mini-game-screen" class="mini-game-screen" style="display: none;">
+        <!-- Top HUD Panel -->
+        <div class="game-hud-container">
+            <div class="game-hud-box glass-panel">
+                <div class="game-hud-top">
+                    <span class="game-hud-title aesthetic-font">Kumpulkan Bouquet! 🌸</span>
+                    <span class="game-hud-badge">Misi 10 Bouquet</span>
+                </div>
+                <div class="game-hud-center">
+                    <div class="game-score-wrap">
+                        <img src="img/game-bouquet.png" alt="Bouquet" class="game-score-bouquet-icon">
+                        <span id="game-score-display" class="game-score-display">0</span>
+                        <span class="game-score-target">/ 10</span>
+                    </div>
+                    <div class="game-progress-track">
+                        <div id="game-progress-bar" class="game-progress-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <p class="game-hud-warning">Awas! Hindari bom 💣 (kalau kena reset ke 0 lagi)</p>
+            </div>
+        </div>
+
+        <!-- Canvas Game Playground -->
+        <div id="game-canvas-wrapper" class="game-canvas-wrapper">
+            <canvas id="game-canvas"></canvas>
+            <!-- Floating Feedback Overlay for +1, BOOM, etc -->
+            <div id="game-feedback-overlay" class="game-feedback-overlay"></div>
+        </div>
+
+        <!-- Bottom Controls & Hints -->
+        <div class="game-bottom-bar">
+            <p class="game-control-text">👆 Geser kucing ke kiri & kanan untuk menangkap bunga</p>
+        </div>
+
+        <!-- Win Overlay Modal -->
+        <div id="game-win-overlay" class="game-win-overlay" style="display: none;">
+            <div class="game-win-modal glass-panel">
+                <div class="game-win-sparkles">✨ 🌸 💖 🌸 ✨</div>
+                <img src="img/game-cat.png" alt="Happy Cat" class="game-win-cat-img">
+                <h2 class="aesthetic-font game-win-heading">Yaaay, Berhasil! 🎉</h2>
+                <p class="game-win-desc">10 bouquet bunga sudah terkumpul untuk kamu! 💐🐱</p>
+                <button id="btn-game-continue" class="btn-game-continue" onclick="selesaiMiniGame()">Buka Kado Spesial
+                    🎁</button>
+            </div>
+        </div>
+    </div>
+
     <div id="landing-page" style="display: none;">
         <div class="bouquet-container" onclick="bukaKado()">
             <img src="img/BouquetBunga.png" alt="BouquetBunga" class="bouquet-img">
-            <p class="click-text">for u my luv<br>(pencet cukingnya) </p>
+            <p class="click-text">for u cantik<br>(pencet cukingnya) </p>
         </div>
     </div>
 
     <div id="main-content" class="hidden">
 
         <section class="slide glass-panel show-on-scroll">
-            <h1 class="aesthetic-font fade-in-text">Happy Birthday,<br>My Everything</h1>
+            <h1 class="aesthetic-font fade-in-text">Happy Birthday,<br>My Favorite Person</h1>
             <p class="aesthetic-font fade-in-text"
                 style="font-size: 1.3rem; color: #ffffff; margin-top: -5px; margin-bottom: 10px; letter-spacing: 2px;">-
                 Elloy -</p>
             <img src="img/foto-pacar.png" alt="Foto Pacar" class="birthday-photo fade-in-text">
-            <p class="typing-text">Hari ini adalah hari yang paling spesial karena di hari ini, semesta membawa kamu ke
-                dunia.</p>
-            <p class="typing-text">Selamat bertambah usia. Terima kasih karena sudah lahir dan tumbuh menjadi pribadi
-                sebaik, sehangat, dan sekuat dirimu sekarang.</p>
+            <p class="typing-text">Hari ini tetap menjadi hari yang spesial, karena di hari ini seseorang yang pernah
+                menjadi bagian penting dalam hidupku lahir ke dunia.</p>
+
+            <p class="typing-text">Selamat bertambah usia. Terima kasih sudah pernah hadir di hidupku, berbagi cerita,
+                dan menjadi bagian dari perjalanan hidupku. Semoga di usia yang baru ini, kamu terus tumbuh menjadi
+                pribadi yang semakin baik, kuat, dan bahagia. Semoga segala hal baik yang kamu harapkan perlahan
+                menemukan jalannya, dan semoga kehidupan ke depannya selalu membawa kamu pada hal-hal yang memang pantas
+                kamu dapatkan.</p>
 
             <div class="pulsating-heart">🤍</div>
 
-            <p class="scroll-hint">✨Scroll pelan-pelan ke bawah ya sayang..✨</p>
+            <p class="scroll-hint">✨Scroll pelan-pelan ke bawah ya cantik..✨</p>
         </section>
 
         <section class="slide glass-panel show-on-scroll">
             <h2 class="baby-pink-text" style="font-style: italic;">A little prayer for you.</h2>
-            <p class="fade-in-text">Selamat ulang tahun, Aa’ 🤍</p>
 
-            <p class="fade-in-text">Semoga di usia aa’ yang baru ini, aa’ selalu diberi kesehatan, kebahagiaan, rezeki
-                yang lancar, dan selalu dipertemukan dengan orang-orang baik yang tulus menyayangi aa’. Semoga semua doa
-                dan impian aa’ bisa Allah kabulkan di waktu yang paling tepat.</p>
+            <p class="fade-in-text">Semoga di usiamu yang baru ini, kamu selalu dikelilingi oleh kebahagiaan, kesehatan,
+                dan orang-orang yang tulus menyayangimu. Semoga setiap doa yang diam-diam kamu panjatkan menemukan
+                jalannya untuk menjadi kenyataan, setiap usaha yang kamu perjuangkan membuahkan hasil terbaik, dan
+                setiap langkah yang kamu ambil membawa kamu semakin dekat dengan mimpi-mimpimu.</p>
 
-            <p class="fade-in-text">Neng juga mau minta maaf karena sampai sekarang neng masih belum bisa jadi yang
-                terbaik buat aa’. Maaf kalau neng masih banyak kurangnya dan belum bisa selalu memahami aa’ dengan baik.
-                Neng masih harus banyak belajar, tapi neng akan terus berusaha menjadi lebih baik. Terima kasih sudah
-                hadir dan menjadi bagian berarti dalam hidup Neng.</p>
+            <p class="fade-in-text">Aku juga berharap, apa pun yang akan kamu hadapi ke depannya, semoga kamu selalu
+                menemukan alasan untuk tetap kuat dan percaya bahwa akan ada banyak hal baik yang menantimu. aku tetap
+                berharap kamu bisa menjalani setiap proses
+                dengan baik, menemukan kebahagiaan yang kamu cari, dan dikelilingi oleh orang-orang yang menghargai
+                serta menyayangimu dengan tulus. Bagaimanapun cerita kita berakhir, melihatmu bahagia akan selalu
+                menjadi salah satu hal yang ingin aku doakan.</p>
 
-            <p class="fade-in-text">Semoga neng masih diberi kesempatan untuk menemani aa’ melewati banyak hal,
-                merayakan kebahagiaan aa’, dan tetap ada di samping aa’ dalam keadaan apa pun. Happy birthday, aa’.
-                Semoga hari-hari aa’ ke depannya dipenuhi banyak kebahagiaan. 🤍</p>
-
-            <p class="fade-in-text">With love, Neng.</p>
         </section>
 
         <section class="slide photo-panel show-on-scroll">
@@ -132,33 +181,19 @@
             <div class="solar-system">
                 <div class="orbit-track">
 
-                    <div class="planet-card item1" data-caption="Bakso">
+                    <div class="planet-card item1" data-caption="Dimsum">
                         <img src="img/favorite-food.jpg" alt="Food">
                         <p class="planet-caption">Your favorite food</p>
                     </div>
 
-                    <div class="planet-card item2" data-caption="Jus Alpukat">
+                    <div class="planet-card item2" data-caption="Matcha">
                         <img src="img/favorite-drink.jpg" alt="Drink">
                         <p class="planet-caption">Your favorite drink</p>
                     </div>
 
-                    <div class="planet-card item3"
-                        data-embed="https://open.spotify.com/embed/track/4awLLAITdfA1nSoDvR4J9d?utm_source=generator&si=ae615b5e7b914182"
-                        data-caption="Oncom Gondrong - Bandung Music, Ama">
-                        <img src="img/favorite-song.png" alt="Song">
-                        <p class="planet-caption">Your favorite song</p>
-                    </div>
-
-                    <div class="planet-card item4"
-                        data-embed="https://www.youtube.com/embed/JyCUaWUvH08?si=9mZjEwMhF6xPeYa8"
-                        data-caption="Warintil Official">
-                        <img src="img/favorite-yt.jpg" alt="YouTube Video">
-                        <p class="planet-caption">Your favorite Youtube Channel</p>
-                    </div>
-
-                    <div class="planet-card item5" data-caption="Cilla Cantik">
+                    <div class="planet-card item3" data-caption="Jaehyun">
                         <img src="img/favorite-person.jpeg" alt="Person">
-                        <p class="planet-caption">Your favorite person</p>
+                        <p class="planet-caption">Your favorite idol</p>
                     </div>
 
                 </div>
@@ -167,34 +202,74 @@
 
         <section class="slide photo-panel show-on-scroll">
             <h2 class="aesthetic-font" style="line-height: 0.8; margin-bottom: 35px; color: #ffb6c1;">
-                <span style="font-size: 2em; display: block;">Our Food Date</span>
+                <span style="font-size: 2em; display: block;">Core Memories</span>
                 <span
-                    style="font-size: 1.2em; display: block; opacity: 0.9; transform: translateX(40px); color: #ffffff;">Core
-                    Memories</span>
+                    style="font-size: 1.2em; display: block; opacity: 0.9; transform: translateX(40px); color: #ffffff;">Of
+                    Us</span>
             </h2>
             <div class="gallery-scroll">
                 <div class="scratch-card">
-                    <img src="img/1.jpeg" alt="Kenangan 1">
+                    <div class="scratch-love-card">
+                        <div class="scratch-love-content">
+                            <div class="faint-love-light">
+                                <svg class="love-heart-svg" viewBox="0 0 100 100" fill="currentColor">
+                                    <path
+                                        d="M50 85 C22 58 6 42 6 26 C6 13 16 5 28 5 C38 5 46 12 50 18 C54 12 62 5 72 5 C84 5 94 13 94 26 C94 42 78 58 50 85 Z" />
+                                </svg>
+                                <div class="love-light-glow"></div>
+                            </div>
+                            <p class="love-card-text aesthetic-font">aku sayang kamu always</p>
+                        </div>
+                    </div>
                     <canvas class="scratch-canvas"></canvas>
                 </div>
                 <div class="scratch-card">
-                    <img src="img/2.jpeg" alt="Kenangan 2">
+                    <div class="scratch-love-card">
+                        <div class="scratch-love-content">
+                            <div class="faint-love-light">
+                                <svg class="love-heart-svg" viewBox="0 0 100 100" fill="currentColor">
+                                    <path
+                                        d="M50 85 C22 58 6 42 6 26 C6 13 16 5 28 5 C38 5 46 12 50 18 C54 12 62 5 72 5 C84 5 94 13 94 26 C94 42 78 58 50 85 Z" />
+                                </svg>
+                                <div class="love-light-glow"></div>
+                            </div>
+                            <p class="love-card-text aesthetic-font">aku sayang kamu always</p>
+                        </div>
+                    </div>
                     <canvas class="scratch-canvas"></canvas>
                 </div>
                 <div class="scratch-card">
-                    <img src="img/3.jpeg" alt="Kenangan 3">
+                    <div class="scratch-love-card">
+                        <div class="scratch-love-content">
+                            <div class="faint-love-light">
+                                <svg class="love-heart-svg" viewBox="0 0 100 100" fill="currentColor">
+                                    <path
+                                        d="M50 85 C22 58 6 42 6 26 C6 13 16 5 28 5 C38 5 46 12 50 18 C54 12 62 5 72 5 C84 5 94 13 94 26 C94 42 78 58 50 85 Z" />
+                                </svg>
+                                <div class="love-light-glow"></div>
+                            </div>
+                            <p class="love-card-text aesthetic-font">aku sayang kamu always</p>
+                        </div>
+                    </div>
                     <canvas class="scratch-canvas"></canvas>
                 </div>
                 <div class="scratch-card">
-                    <img src="img/4.jpeg" alt="Kenangan 4">
+                    <div class="scratch-love-card">
+                        <div class="scratch-love-content">
+                            <div class="faint-love-light">
+                                <svg class="love-heart-svg" viewBox="0 0 100 100" fill="currentColor">
+                                    <path
+                                        d="M50 85 C22 58 6 42 6 26 C6 13 16 5 28 5 C38 5 46 12 50 18 C54 12 62 5 72 5 C84 5 94 13 94 26 C94 42 78 58 50 85 Z" />
+                                </svg>
+                                <div class="love-light-glow"></div>
+                            </div>
+                            <p class="love-card-text aesthetic-font">aku sayang kamu always</p>
+                        </div>
+                    </div>
                     <canvas class="scratch-canvas"></canvas>
                 </div>
                 <div class="scratch-card">
                     <img src="img/5.jpeg" alt="Kenangan 5">
-                    <canvas class="scratch-canvas"></canvas>
-                </div>
-                <div class="scratch-card">
-                    <img src="img/6.jpeg" alt="Kenangan 6">
                     <canvas class="scratch-canvas"></canvas>
                 </div>
             </div>
@@ -208,13 +283,25 @@
 
         <section class="slide photo-panel show-on-scroll">
             <div class="polaroid-grid">
-                <div class="polaroid">
-                    <img src="img/you.jpeg" alt="Foto Pribadi 1">
-                    <p class="caption">Thankyou</p>
+                <div class="polaroid polaroid-top">
+                    <img src="img/you.jpeg" alt="you">
+                    <p class="caption">you</p>
                 </div>
                 <div class="polaroid">
-                    <img src="img/are.jpeg" alt="Foto Pribadi 2">
-                    <p class="caption">For Everything</p>
+                    <img src="img/are.jpeg" alt="are">
+                    <p class="caption">are</p>
+                </div>
+                <div class="polaroid">
+                    <img src="img/the most.jpeg" alt="the most">
+                    <p class="caption">the most</p>
+                </div>
+                <div class="polaroid">
+                    <img src="img/beautiful.jpeg" alt="beautiful">
+                    <p class="caption">beautiful</p>
+                </div>
+                <div class="polaroid">
+                    <img src="img/girl.jpeg" alt="girl">
+                    <p class="caption">girl</p>
                 </div>
             </div>
         </section>
@@ -223,20 +310,27 @@
             <h1 class="aesthetic-font">You Are My Universe</h1>
 
             <p class="typing-text" style="margin-top: 25px; margin-bottom: 15px;">
-                Setiap detik bersamamu adalah kebahagiaan yang tidak akan pernah aku tukar dengan apa pun. Terima kasih
-                sudah bertahan, bertumbuh, dan selalu bersinar bersamaku sejauh ini.
+                Setiap momen yang kita lewati punya cerita dan kesan tersendiri buat aku. Makasih ya, udah jadi bagian
+                dari cerita hidupku sejauh ini. Semoga ke depannya kita masih bisa saling kenal lebih jauh, berbagi
+                banyak cerita, dan punya lebih banyak hal sederhana yang bisa dikenang. Siapa tahu, dari semua hal yang
+                kita lewati sekarang, ada cerita baik yang nantinya bakal kita syukuri.
             </p>
 
             <p class="typing-text" style="margin-bottom: 40px;">
-                Di hari spesialmu ini, aku hanya ingin kamu tahu bahwa kamu sangat amat berharga. Tetaplah menjadi
-                dirimu yang hangat dan luar biasa. Aku akan selalu ada di sini, mendukung dan mencintaimu dalam setiap
-                fase hidupmu. Selamat bertambah usia, satu-satunya duniaku. 🤍
+                Di hari spesialmu ini, aku cuma berharap kamu selalu sadar kalau dirimu punya banyak hal baik yang layak
+                disyukuri. Tetap jadi dirimu sendiri, yaa, seseorang dengan caranya sendiri yang bisa membawa hal baik
+                ke orang-orang di sekitarnya. Semoga di umur yang baru ini, kamu lebih sering menemukan alasan buat
+                bahagia dan selalu dikelilingi orang-orang yang tulus. Aku mungkin nggak selalu punya kata-kata yang
+                tepat buat disampaikan, tapi aku harap kamu tahu kalau ada seseorang di sini yang diam-diam ikut senang
+                setiap kali kamu bahagia dan selalu berharap hal-hal baik datang ke hidupmu. Selamat bertambah usia,
+                yaa. Semoga dunia selalu punya banyak alasan untuk membuatmu tersenyum. 🤍
             </p>
 
             <hr style="border: 0; border-top: 1px solid rgba(255,182,193,0.3); margin-bottom: 20px;">
-            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 5px;">Dari orang yang paling bersyukur memilikimu,
+            <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 5px;">Dari orang yang paling bersyukur mengenalmu,
             </p>
-            <p class="sender-name aesthetic-font baby-pink-text" style="font-size: 2rem; margin-top: 5px;">Cilla Cantik
+            <p class="sender-name aesthetic-font baby-pink-text" style="font-size: 2rem; margin-top: 5px;"> Rizki
+                Ramdani
             </p>
 
             <!-- Tombol Tiup Lilin -->

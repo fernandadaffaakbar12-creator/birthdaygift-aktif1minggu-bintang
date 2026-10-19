@@ -570,25 +570,17 @@ body {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 }
 
-/* Jarak Orbit DIPERBESAR (TranslateZ) agar kartu tidak berdempetan */
+/* Jarak Orbit disesuaikan untuk 3 kartu (saling berdekatan namun tidak rapat) */
 .item1 {
-    transform: rotateY(0deg) translateZ(340px);
+    transform: rotateY(0deg) translateZ(160px);
 }
 
 .item2 {
-    transform: rotateY(72deg) translateZ(340px);
+    transform: rotateY(120deg) translateZ(160px);
 }
 
 .item3 {
-    transform: rotateY(144deg) translateZ(340px);
-}
-
-.item4 {
-    transform: rotateY(216deg) translateZ(340px);
-}
-
-.item5 {
-    transform: rotateY(288deg) translateZ(340px);
+    transform: rotateY(240deg) translateZ(160px);
 }
 
 /* =========================================
@@ -620,12 +612,15 @@ body {
 }
 
 #modal-img {
+    width: min(85vw, 65vh);
     max-width: 90vw;
     max-height: 75vh;
+    aspect-ratio: 1 / 1;
     border-radius: 15px;
     box-shadow: 0 10px 50px rgba(255, 182, 193, 0.5);
     transform: scale(0.7);
     transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    object-fit: cover;
 }
 
 /* Desain dasar iframe (akan diubah rasionya via JS) */
@@ -835,52 +830,224 @@ body {
 }
 
 /* =========================================
+   DESAIN KARTU PESAN CINTA KENANGAN 1-4
+========================================= */
+.scratch-love-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 45%, #2a0e20 0%, #170918 60%, #0d050f 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Pola taburan bintang/partikel halus pada kartu pesan */
+.scratch-love-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(1px 1px at 20px 30px, rgba(255, 255, 255, 0.45), rgba(0, 0, 0, 0)),
+        radial-gradient(1.5px 1.5px at 150px 80px, rgba(255, 182, 193, 0.5), rgba(0, 0, 0, 0)),
+        radial-gradient(1px 1px at 70px 180px, rgba(255, 255, 255, 0.35), rgba(0, 0, 0, 0)),
+        radial-gradient(1.5px 1.5px at 180px 240px, rgba(255, 182, 193, 0.45), rgba(0, 0, 0, 0)),
+        radial-gradient(1px 1px at 40px 310px, rgba(255, 255, 255, 0.35), rgba(0, 0, 0, 0));
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Konten teks dan efek love, tersembunyi / intipan sebelum selesai digosok */
+.scratch-love-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 25px 20px;
+    box-sizing: border-box;
+    text-align: center;
+    opacity: 0.15;
+    transform: scale(0.92);
+    filter: blur(4px);
+    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Efek fade-in halus saat setelah digosok layarnya */
+.scratch-card.scratched .scratch-love-content {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0px);
+}
+
+/* Animasi Cahaya Love Samar-samar di Belakang Tulisan */
+.faint-love-light {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 170px;
+    height: 170px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1;
+    animation: faintLovePulse 3.8s ease-in-out infinite;
+}
+
+/* Variasi delay animasi per kartu agar terasa dinamis */
+.scratch-card:nth-child(1) .faint-love-light { animation-delay: 0s; }
+.scratch-card:nth-child(2) .faint-love-light { animation-delay: 0.9s; }
+.scratch-card:nth-child(3) .faint-love-light { animation-delay: 1.8s; }
+.scratch-card:nth-child(4) .faint-love-light { animation-delay: 2.7s; }
+
+.love-heart-svg {
+    width: 140px;
+    height: 140px;
+    color: rgba(255, 130, 175, 0.32);
+    filter: drop-shadow(0 0 15px rgba(255, 105, 180, 0.45));
+}
+
+.love-light-glow {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 182, 193, 0.35) 0%, rgba(255, 105, 180, 0.18) 45%, transparent 70%);
+    filter: blur(14px);
+    pointer-events: none;
+}
+
+@keyframes faintLovePulse {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(0.92);
+        opacity: 0.38;
+        filter: drop-shadow(0 0 12px rgba(255, 105, 180, 0.35));
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.08);
+        opacity: 0.75;
+        filter: drop-shadow(0 0 26px rgba(255, 182, 193, 0.75));
+    }
+}
+
+/* Desain Tulisan "aku sayang kamu always" */
+.love-card-text {
+    position: relative;
+    z-index: 2;
+    font-family: 'Caveat', cursive;
+    font-size: 2.2rem;
+    line-height: 1.35;
+    color: #ffffff;
+    text-shadow: 
+        0 0 10px rgba(255, 182, 193, 0.9),
+        0 0 20px rgba(255, 105, 180, 0.65),
+        0 2px 8px rgba(0, 0, 0, 0.9);
+    margin: 0;
+    padding: 0 10px;
+    letter-spacing: 0.5px;
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+/* =========================================
    FOTO PRIBADI NEON (Slide 5)
 ========================================= */
 .polaroid-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    /* Membuat susunan 2 ke samping */
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
     margin: 20px auto 0 auto;
-    /* Memastikan posisinya tepat di tengah */
-    max-width: 450px;
-    /* KUNCI: Membatasi lebar maksimal agar fotonya tidak terlalu besar */
+    max-width: 620px;
+    align-items: start;
 }
 
 .polaroid {
     background: #fff;
-    padding: 10px 10px 20px 10px;
+    padding: 10px 10px 18px 10px;
     cursor: pointer;
     transform: rotate(-2deg);
     /* Efek Neon Putih */
     box-shadow: 0 0 10px #ffffff, 0 0 25px rgba(255, 255, 255, 0.8) !important;
     animation: float-polaroid 5s ease-in-out infinite;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.polaroid:nth-child(even) {
-    transform: rotate(3deg);
+.polaroid.polaroid-top {
+    grid-column: 2 / span 2;
+    justify-self: center;
+    width: 100%;
+    max-width: 185px;
+    transform: rotate(0deg);
+    animation: float-polaroid-top 5.5s ease-in-out infinite;
+    margin-bottom: 8px;
+}
+
+.polaroid:nth-child(2) {
+    transform: rotate(-3deg);
+    animation: float-polaroid 5.2s ease-in-out infinite;
+}
+
+.polaroid:nth-child(3) {
+    transform: rotate(2.5deg);
     animation: float-polaroid-alt 6s ease-in-out infinite;
+}
+
+.polaroid:nth-child(4) {
+    transform: rotate(-2deg);
+    animation: float-polaroid 5.6s ease-in-out infinite;
+}
+
+.polaroid:nth-child(5) {
+    transform: rotate(3deg);
+    animation: float-polaroid-alt 5.8s ease-in-out infinite;
 }
 
 .polaroid img {
     width: 100%;
     aspect-ratio: 3 / 4;
     object-fit: cover;
+    border-radius: 2px;
 }
 
 .polaroid .caption {
     color: #000000;
     font-family: 'Caveat', cursive;
-    font-size: 1.5rem;
-    margin-top: 10px;
+    font-size: 1.45rem;
+    margin-top: 8px;
     margin-bottom: 0;
+    text-align: center;
 }
 
 .polaroid:hover {
     /* Efek Neon Baby Pink saat disorot */
     box-shadow: 0 0 15px #ffb6c1, 0 0 35px #ffb6c1 !important;
-    filter: brightness(1.1);
+    filter: brightness(1.08);
+    transform: scale(1.05) rotate(0deg) !important;
+    z-index: 5;
+}
+
+@keyframes float-polaroid-top {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(0deg);
+    }
 }
 
 /* =========================================
@@ -949,12 +1116,15 @@ body {
 }
 
 #modal-img {
+    width: min(85vw, 65vh);
     max-width: 90vw;
-    max-height: 90vh;
+    max-height: 80vh;
+    aspect-ratio: 1 / 1;
     border-radius: 15px;
     box-shadow: 0 10px 50px rgba(255, 182, 193, 0.5);
     transform: scale(0.7);
     transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    object-fit: cover;
 }
 
 #image-modal.show-modal #modal-img {
@@ -1111,25 +1281,17 @@ body {
         font-size: 0.95rem;
     }
 
-    /* Menyesuaikan jarak orbit di HP */
+    /* Menyesuaikan jarak orbit di HP untuk 3 kartu */
     .item1 {
-        transform: rotateY(0deg) translateZ(200px);
+        transform: rotateY(0deg) translateZ(125px);
     }
 
     .item2 {
-        transform: rotateY(72deg) translateZ(200px);
+        transform: rotateY(120deg) translateZ(125px);
     }
 
     .item3 {
-        transform: rotateY(144deg) translateZ(200px);
-    }
-
-    .item4 {
-        transform: rotateY(216deg) translateZ(200px);
-    }
-
-    .item5 {
-        transform: rotateY(288deg) translateZ(200px);
+        transform: rotateY(240deg) translateZ(125px);
     }
 
     #main-content {
@@ -1161,19 +1323,22 @@ body {
 
     .polaroid-grid {
         grid-template-columns: repeat(2, 1fr);
-        /* Memaksa agar tetap 2 ke samping di HP */
-        gap: 10px;
-        /* Jarak antar foto sedikit dirapatkan */
+        gap: 12px;
+        max-width: 360px;
+    }
+
+    .polaroid.polaroid-top {
+        grid-column: 1 / span 2;
+        max-width: 175px;
+        margin-bottom: 6px;
     }
 
     .polaroid {
-        padding: 8px 8px 15px 8px;
-        /* Bingkai putih polaroid sedikit dikecilkan */
+        padding: 8px 8px 14px 8px;
     }
 
     .polaroid .caption {
-        font-size: 1.1rem;
-        /* Ukuran tulisan di bawah foto dikecilkan agar muat dan rapi */
+        font-size: 1.2rem;
     }
 
 
@@ -2237,4 +2402,358 @@ body {
 .cake-container:not(.holding) {
     transform: scale(1);
     transition: transform 0.3s ease;
+}
+
+/* =========================================
+   MINI GAME: TANGKAP 10 BOUQUET
+========================================= */
+.mini-game-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 990;
+    background: radial-gradient(circle at 50% 30%, rgba(35, 12, 28, 0.9) 0%, rgba(12, 5, 16, 0.98) 75%, #050208 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+.mini-game-screen.active {
+    opacity: 1;
+}
+
+/* Top HUD Container */
+.game-hud-container {
+    width: 100%;
+    max-width: 450px;
+    padding: 15px 15px 5px 15px;
+    box-sizing: border-box;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.game-hud-box {
+    padding: 12px 18px !important;
+    margin: 0 !important;
+    border-radius: 18px !important;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px) !important;
+    border: 1px solid rgba(255, 182, 193, 0.35) !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 182, 193, 0.12) !important;
+}
+
+.game-hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.game-hud-title {
+    font-size: 1.8rem !important;
+    color: #ffb6c1 !important;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(255, 182, 193, 0.8);
+    line-height: 1;
+}
+
+.game-hud-badge {
+    font-size: 0.72rem;
+    background: rgba(255, 182, 193, 0.2);
+    border: 1px solid rgba(255, 182, 193, 0.45);
+    border-radius: 12px;
+    padding: 3px 9px;
+    color: #ffffff;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.game-hud-center {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 5px;
+}
+
+.game-score-wrap {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.game-score-bouquet-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+    animation: gentleWiggle 3s ease-in-out infinite;
+}
+
+@keyframes gentleWiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-8deg); }
+    75% { transform: rotate(8deg); }
+}
+
+.game-score-display {
+    font-size: 1.65rem;
+    font-weight: 700;
+    color: #ffb6c1;
+    text-shadow: 0 0 10px rgba(255, 182, 193, 0.9);
+    min-width: 22px;
+    line-height: 1;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.game-score-display.bump {
+    transform: scale(1.35);
+}
+
+.game-score-target {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+}
+
+.game-progress-track {
+    flex: 1;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 182, 193, 0.25);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.game-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ff7eb3, #ffb6c1, #ffe4e9);
+    border-radius: 10px;
+    transition: width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 0 10px rgba(255, 182, 193, 0.85);
+}
+
+.game-hud-warning {
+    font-size: 0.76rem;
+    color: rgba(255, 215, 225, 0.8);
+    margin: 0;
+    font-style: italic;
+    letter-spacing: 0.2px;
+}
+
+/* Canvas Area */
+.game-canvas-wrapper {
+    flex: 1;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    overflow: hidden;
+    cursor: grab;
+}
+
+.game-canvas-wrapper:active {
+    cursor: grabbing;
+}
+
+#game-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+}
+
+/* Screen Shake Effect */
+@keyframes screenShake {
+    0%, 100% { transform: translate(0, 0); }
+    15% { transform: translate(-10px, 6px); }
+    30% { transform: translate(9px, -7px); }
+    45% { transform: translate(-8px, 5px); }
+    60% { transform: translate(6px, -4px); }
+    75% { transform: translate(-4px, 2px); }
+    90% { transform: translate(2px, -1px); }
+}
+
+.game-canvas-wrapper.shake-active {
+    animation: screenShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Floating Feedback (+1, BOOM) */
+.game-feedback-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 15;
+    overflow: hidden;
+}
+
+.game-floating-msg {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+    animation: floatUpAndFade 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.game-floating-msg.positive {
+    color: #ffb6c1;
+    text-shadow: 0 0 10px rgba(255, 182, 193, 0.9), 0 0 20px rgba(255, 105, 180, 0.8), 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.game-floating-msg.negative {
+    color: #ff4757;
+    font-size: 1.8rem;
+    text-shadow: 0 0 10px rgba(255, 71, 87, 0.9), 0 0 20px rgba(255, 0, 0, 0.7), 0 2px 5px rgba(0, 0, 0, 0.9);
+}
+
+@keyframes floatUpAndFade {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, 0) scale(0.6);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(-50%, -20px) scale(1.15);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -65px) scale(1);
+    }
+}
+
+/* Bottom Hint */
+.game-bottom-bar {
+    padding: 10px 15px 15px 15px;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.game-control-text {
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    margin: 0;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+    letter-spacing: 0.3px;
+}
+
+/* Win Overlay Modal */
+.game-win-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 4, 14, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeInModal 0.5s ease forwards;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.game-win-modal {
+    max-width: 330px;
+    width: 100%;
+    text-align: center;
+    padding: 30px 22px !important;
+    margin: 0 !important;
+    border-radius: 25px !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 2px solid rgba(255, 182, 193, 0.5) !important;
+    box-shadow: 0 0 35px rgba(255, 182, 193, 0.4), 0 15px 40px rgba(0, 0, 0, 0.7) !important;
+    animation: popUpModal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes popUpModal {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.game-win-sparkles {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    letter-spacing: 4px;
+}
+
+.game-win-cat-img {
+    width: 125px;
+    height: 125px;
+    object-fit: contain;
+    margin: 0 auto 12px auto;
+    display: block;
+    animation: happyCatBounce 1.4s ease-in-out infinite;
+    filter: drop-shadow(0 8px 16px rgba(255, 182, 193, 0.4));
+}
+
+@keyframes happyCatBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-12px) scale(1.06); }
+}
+
+.game-win-heading {
+    font-size: 2.3rem !important;
+    color: #ffb6c1 !important;
+    margin: 0 0 8px 0;
+    line-height: 1.1;
+    text-shadow: 0 0 12px rgba(255, 182, 193, 0.85);
+}
+
+.game-win-desc {
+    color: #ffffff;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    margin-bottom: 22px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.btn-game-continue {
+    background: linear-gradient(135deg, #ff7eb3, #ff4081);
+    color: #ffffff;
+    border: none;
+    padding: 13px 26px;
+    border-radius: 30px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 64, 129, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-family: 'Outfit', sans-serif;
+    outline: none;
+}
+
+.btn-game-continue:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 25px rgba(255, 64, 129, 0.7);
+}
+
+.btn-game-continue:active {
+    transform: translateY(1px) scale(0.98);
 }
